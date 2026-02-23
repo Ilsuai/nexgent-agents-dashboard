@@ -29,6 +29,13 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Auth — tells the frontend which Firestore document to read/write
+// No FIREBASE_USER_ID needed: defaults to 'nexgent' for single-tenant use
+app.get('/api/auth/user', (req, res) => {
+  const userId = process.env.FIREBASE_USER_ID || 'nexgent';
+  res.json({ success: true, userId });
+});
+
 // API Routes
 app.use('/api/agents', agentsRouter);
 app.use('/api/signals', signalsRouter);

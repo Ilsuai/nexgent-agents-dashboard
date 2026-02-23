@@ -24,10 +24,7 @@ export function getDb() {
   return db;
 }
 
+// Fixed data path — no dynamic user ID needed for a single-tenant dashboard
 export function getUserId() {
-  const userId = process.env.FIREBASE_USER_ID;
-  if (!userId) {
-    throw new Error('FIREBASE_USER_ID environment variable not set');
-  }
-  return userId;
+  return process.env.FIREBASE_USER_ID || 'nexgent';
 }

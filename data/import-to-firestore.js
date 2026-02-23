@@ -31,11 +31,8 @@ if (getApps().length === 0) {
 }
 
 const db = getFirestore();
-const USER_ID = process.env.FIREBASE_USER_ID;
-if (!USER_ID) {
-  console.error('❌ FIREBASE_USER_ID env var not set');
-  process.exit(1);
-}
+// Defaults to 'nexgent' — the fixed data path for this single-tenant dashboard
+const USER_ID = process.env.FIREBASE_USER_ID || 'nexgent';
 
 // ── CSV parser ─────────────────────────────────────────────────────────────────
 function parseCSVLine(line) {
