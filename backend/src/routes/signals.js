@@ -49,7 +49,7 @@ router.post('/import', async (req, res) => {
       return res.status(400).json({ success: false, error: 'signals must be a non-empty array' });
     }
 
-    const batch = db.batch();
+    let batch = db.batch();
     let saved = 0;
 
     for (const signal of signals) {
@@ -65,6 +65,7 @@ router.post('/import', async (req, res) => {
       // Firestore batch limit is 500
       if (saved % 450 === 0) {
         await batch.commit();
+        batch = db.batch();
       }
     }
 
