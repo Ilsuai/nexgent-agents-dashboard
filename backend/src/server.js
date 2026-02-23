@@ -11,24 +11,20 @@ import webhookRouter from './routes/webhook.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Initialize Firebase Admin on startup
-try {
-  initFirebase();
-  console.log('✅ Firebase Admin initialized');
-} catch (err) {
-  console.error('❌ Firebase Admin init failed:', err.message);
-  process.exit(1);
-}
+// Track Firebase init state
+let firebaseReady = false;
+let firebaseError = null;
 
 // Middleware
 app.use(corsMiddleware);
 app.use(express.json({ limit: '10mb' }));
 
-// Health check
+// Health check — always responds so Railway can verify the server is up
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'nexgent-agents-dashboard-backend',
+    firebase: firebaseReady ? 'connected' : (firebaseError || 'initializing'),
     timestamp: new Date().toISOString(),
   });
 });
@@ -51,6 +47,18 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, error: err.message });
 });
 
-app.listen(PORT, () => {
+// Start server first so Railway health check passes immediately
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Nexgent Agents Dashboard backend running on port ${PORT}`);
+
+  // Initialize Firebase after server is listening
+  try {
+    initFirebase();
+    firebaseReady = true;
+    console.log('✅ Firebase Admin initialized');
+  } catch (err) {
+    firebaseError = err.message;
+    console.error('❌ Firebase Admin init failed:', err.message);
+    console.error('   Set FIREBASE_SERVICE_ACCOUNT and FIREBASE_USER_ID in Railway Variables');
+  }
 });
