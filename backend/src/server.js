@@ -7,6 +7,7 @@ import signalsRouter from './routes/signals.js';
 import tradesRouter from './routes/trades.js';
 import botRouter from './routes/bot.js';
 import webhookRouter from './routes/webhook.js';
+import aiRouter from './routes/ai.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -42,6 +43,7 @@ app.use('/api/signals', signalsRouter);
 app.use('/api/trades', tradesRouter);
 app.use('/api/bot', botRouter);
 app.use('/api/webhook', webhookRouter);
+app.use('/api/ai', aiRouter);
 
 // 404 handler
 app.use((req, res) => {
