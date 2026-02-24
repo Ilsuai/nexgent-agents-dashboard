@@ -18,7 +18,7 @@ let firebaseError = null;
 
 // Middleware
 app.use(corsMiddleware);
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 // Health check — always responds so Railway can verify the server is up
 app.get('/health', (req, res) => {

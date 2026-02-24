@@ -113,18 +113,29 @@ router.post('/chat', async (req, res) => {
       return res.status(500).json({ success: false, error: 'ANTHROPIC_API_KEY not configured' });
     }
 
-    const { message, context, history, conversationId } = req.body;
+    const { message, context, history, conversationId, images } = req.body;
     if (!message) {
       return res.status(400).json({ success: false, error: 'message is required' });
     }
 
     const client = new Anthropic({ apiKey });
 
+    // Helper: build content blocks for a message that may include images
+    const buildContent = (text, imgs) => {
+      if (!imgs || !imgs.length) return text;
+      const content = [];
+      for (const img of imgs) {
+        content.push({ type: 'image', source: { type: 'base64', media_type: img.mediaType, data: img.data } });
+      }
+      content.push({ type: 'text', text });
+      return content;
+    };
+
     // Build messages array from history
     const messages = [];
     if (history && Array.isArray(history)) {
       for (const h of history) {
-        messages.push({ role: h.role, content: h.content });
+        messages.push({ role: h.role, content: buildContent(h.content, h.images) });
       }
     }
 
@@ -132,7 +143,7 @@ router.post('/chat', async (req, res) => {
     const userContent = context
       ? `## Current Trading Data\n${context}\n\n## Question\n${message}`
       : message;
-    messages.push({ role: 'user', content: userContent });
+    messages.push({ role: 'user', content: buildContent(userContent, images) });
 
     // Set up SSE streaming
     res.setHeader('Content-Type', 'text/event-stream');
